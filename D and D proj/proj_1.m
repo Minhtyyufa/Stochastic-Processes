@@ -23,7 +23,7 @@ find_avg(1e6, 1, 4)
 % a-2 the average amount of FIREBALL damage
 find_avg(1e6, 2, 2)
 % a-3
-find_cdf(1e6, 3, 4, 2, 2)
+find_cdf(1e6, 4, 4, 2, 2)
 
 % b indexing array is pmf function
 pmf_fireball = find_pmf(1e6, 2, 4, 2, 2)
