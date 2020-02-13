@@ -75,6 +75,7 @@ function avg_hp = kill_all_but_one_six_trolls(num_trials)
     avg_hp = hp / cnt;
 end
 
+
 function c = positive_unique(hps)
     cnt = 0;
     c = 0;
@@ -90,6 +91,8 @@ function c = positive_unique(hps)
     end
 end
 
+%roll the dice for fireball, then hp. and if you kill all the trolls it counts as a success. the probability is the number of
+%successes over the number of times
 function prob = kill_all_six_trolls(num_trials)
     succ = 0;
     for i = 1:num_trials
@@ -102,6 +105,7 @@ function prob = kill_all_six_trolls(num_trials)
     prob = succ / num_trials;
 end
 
+%evaluates the probability at each num_to_find and creates an array, the pmf
 function pmf = find_pmf(num_trials, begin, last, num_rolls, num_sides)
     succ_count=0;
     pmf = [];
@@ -116,6 +120,7 @@ function pmf = find_pmf(num_trials, begin, last, num_rolls, num_sides)
     end
 end
 
+%evaluates the cdf between begin and last. Sp it find the prob at each [num_to_find] and then adds it to the previous
 function cdf = find_cdf(num_trials, begin, last, num_rolls, num_sides)
     cdf = 0;
     succ_count=0;
@@ -130,6 +135,7 @@ function cdf = find_cdf(num_trials, begin, last, num_rolls, num_sides)
     end
 end
 
+%finds the average of [num_trials] dice rolls, each with [num_sides] sides, rolled [num_rolls] times
 function avg = find_avg(num_trials, num_rolls, num_sides)
     avg = 0;
     for i = 1:num_trials
@@ -139,20 +145,26 @@ function avg = find_avg(num_trials, num_rolls, num_sides)
 end
 
 
+%finds the probability depending on the method of finding the probability
 function prob = find_prob(num_trials, num_to_find, method, num_rolls, num_sides)
     succ_count=0;
+    
+    %checks to see if the number you look for (num_to_find) was gotten with the fun method, then counts the number of successes
     if strcmp(method,'fun')
         for i = 1:num_trials
             if num_to_find == fun_method(num_rolls, num_sides)
                 succ_count = succ_count + 1;
             end
         end
+    
+    %The same thing as above, but without the fun method (i.e. you dont look for the max of 3 rolls)
     elseif strcmp(method,'reg')
         for i = 1:num_trials
             if num_to_find == roll_dice(num_rolls, num_sides)
                 succ_count = succ_count + 1;
             end
         end
+    %probability that ability score = num_to_find for all 6 ability scores
     elseif strcmp(method, 'abs')
         for i = 1:num_trials
            succ_count = succ_count + ab_scores(6, num_to_find);
@@ -164,6 +176,9 @@ function prob = find_prob(num_trials, num_to_find, method, num_rolls, num_sides)
     
 end
 
+
+%generates ability scores, if it does not match the number, it exits, returning a fail. 
+%If all of them (i.e. num_scores) = num_to_get then it returns a success 
 function succ = ab_scores(num_scores, num_to_get)
     succ = 0;
     for i = 1:num_scores
@@ -174,7 +189,8 @@ function succ = ab_scores(num_scores, num_to_get)
     succ = 1;
 end
 
-function result = fun_method(num_times, num_sides)
+%rolls dice 3 times and takes the max value 
+function result = fun_method(num_times, num_sides) 
     result = 0;
     for i = 1:3
         one_roll = roll_dice(num_times,num_sides);
@@ -182,6 +198,7 @@ function result = fun_method(num_times, num_sides)
     end
 end
 
-function result = roll_dice(num_times,num_sides)
+%rolls the dice with sides=num_sides and sums the results  
+function result = roll_dice(num_times,num_sides)  
     result = sum(randi(num_sides,1,num_times));
 end
