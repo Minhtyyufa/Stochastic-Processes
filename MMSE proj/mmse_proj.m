@@ -48,35 +48,50 @@ lin_mmse_results_table = table(MMSE_emp,MMSE_theo, 'VariableNames', var_names)
 
 %% P2
 clear all;
-y_var = [1;1;2;2];
-r_var = [1;2;1;2];
-N_r = 2;
-N = 5000;
+y_var = [1 5 10 1 5 10 1 5 10].';
+r_var = [1 1 1 5 5 5 10 10 10].';
+N = 10000;
 y_mean = 1;
 size_y = size(y_var);
 size_y = size_y(1);
+N_r = 1000;
 
-MMSE_emp = zeros(size_y,1);
-MMSE_theo = zeros(size_y,1);
+emp_message = "var_y=%d var_r=%d empirical";
+theo_message = "var_y=%d var_r=%d theoretical";
 
+figure;
+legend_labels = [];
 for i = 1:size_y
-    Y = repmat(sqrt(y_var(i)).*randn(N,1)+y_mean, 1, N_r);
-    R = sqrt(r_var(i)).*randn(N,N_r);
+    legend_labels = [legend_labels sprintf(emp_message, y_var(i), r_var(i))];
+    legend_labels = [legend_labels sprintf(theo_message, y_var(i), r_var(i))];
+    MMSE_emp = zeros(N_r,1);
+    MMSE_theo = zeros(N_r,1);
+    for num_obs = 1:N_r
+        Y = repmat(sqrt(y_var(i)).*randn(N,1)+y_mean, 1, num_obs);
+        R = sqrt(r_var(i)).*randn(N,num_obs);
 
-    X = Y + R;
-    Cxx = cov(X);
-    a = (inv(Cxx))*(y_var(i)*ones(N_r,1));
-
-    y_hat = y_mean*(1-a(1)-a(2)) + a(1)*X(:,1) + a(2)*X(:,2);
-
-    MMSE_emp(i) = mean((Y(:,1)-y_hat).^2);
-    MMSE_theo(i) = (y_var(i))*(r_var(i))/(2*y_var(i)+r_var(i));
+        X = Y + R;
+        Cxx = cov(X);
+        a = (inv(Cxx))*(y_var(i)*ones(num_obs,1));
+                
+        y_hat = y_mean;
+        for j = 1:num_obs
+            y_hat = y_hat - a(j)*(y_mean-X(:, j));
+        end
+        MMSE_emp(num_obs) = mean((Y(:,1)-y_hat).^2, 'all');
+        MMSE_theo(num_obs) = (y_var(i))*(r_var(i))/(num_obs*y_var(i)+r_var(i));
+    end
+    plot(1:N_r, MMSE_emp);
+    hold on;
+    plot(1:N_r, MMSE_theo);
+    hold on; 
+    % var_names = {'N_r', 'Var_y', 'Var_r', 'Experimental_MMSE', 'Theoretical_MMSE'};
+    % lin_mult_obs_results_table = table(ones(size_y,1)*N_r, y_var, r_var, MMSE_emp, MMSE_theo, 'VariableNames', var_names)
 end
+legend(legend_labels)
 
-var_names = {'Var_y', 'Var_r', 'Experimental_MMSE', 'Theoretical_MMSE'};
 
 % Results of using the linear estimator for multiple noisy observations
-lin_mult_obs_results_table = table(y_var, r_var, MMSE_emp,MMSE_theo, 'VariableNames', var_names)
 
 
 
