@@ -1,0 +1,257 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>mmse_proj</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-03-11"><meta name="DC.source" content="mmse_proj.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">P1</a></li><li><a href="#3">LMSE</a></li><li><a href="#4">P2</a></li></ul></div><pre class="codeinput"><span class="comment">%Project 2</span>
+<span class="comment">%Do Hyung (Dave), Brian, Minh</span>
+</pre><h2 id="2">P1</h2><p>example A</p><pre class="codeinput"><span class="comment">% Number of trials</span>
+N= 10000;
+
+<span class="comment">% Making</span>
+Y = (2*rand(N,1)-1);
+W = (4*rand(N,1)-2);
+
+X = Y + W;
+
+x_ltneg1 = X&lt;-1;
+x_btwn = X &lt; 1 &amp; X &gt; -1;
+x_else = ~(x_ltneg1 | x_btwn);
+
+MSE = zeros(N,1);
+MSE(x_ltneg1) = (Y(x_ltneg1)-(X(x_ltneg1)+1)/2).^2;
+MSE(x_btwn) = Y(x_btwn).^2;
+MSE(x_else) = (Y(x_else)-(X(x_else)-1)/2).^2;
+
+var_names = {<span class="string">'Experimental_MMSE'</span>, <span class="string">'Theoretical_MMSE'</span>};
+MMSE_emp = mean(MSE);
+MMSE_theo = .25;
+
+<span class="comment">% Bayes MMSE estimator in example 8.5 results</span>
+table(MMSE_emp,MMSE_theo , <span class="string">'VariableNames'</span>, var_names)
+</pre><pre class="codeoutput">
+ans =
+
+  1&times;2 table
+
+    Experimental_MMSE    Theoretical_MMSE
+    _________________    ________________
+
+         0.24512               0.25      
+
+</pre><h2 id="3">LMSE</h2><pre class="codeinput">x_mean = mean(X);
+y_mean = mean(Y);
+w_var = var(W);
+Cxy = cov(X,Y);
+x_var = Cxy(1,1);
+y_var = Cxy(2,2);
+c_xy = Cxy(1,2);
+
+y_hat = y_mean + (c_xy/(x_var^2))*(X-x_mean);
+MMSE_emp = mean((Y-y_hat).^2);
+MMSE_theo = 4/15;
+
+<span class="comment">% Linear MMSE estimator in example 8.6 results</span>
+table(MMSE_emp,MMSE_theo, <span class="string">'VariableNames'</span>, var_names)
+</pre><pre class="codeoutput">
+ans =
+
+  1&times;2 table
+
+    Experimental_MMSE    Theoretical_MMSE
+    _________________    ________________
+
+         0.27347             0.26667     
+
+</pre><h2 id="4">P2</h2><pre class="codeinput">clear <span class="string">all</span>;
+y_var = [1;1;2;2];
+r_var = [1;2;1;2];
+N_r = 2;
+N = 5000;
+y_mean = 1;
+size_y = size(y_var);
+size_y = size_y(1);
+
+MMSE_emp = zeros(size_y,1);
+MMSE_theo = zeros(size_y,1);
+
+<span class="keyword">for</span> i = 1:size_y
+    Y = repmat(sqrt(y_var(i)).*randn(N,1)+y_mean, 1, N_r);
+    R = sqrt(r_var(i)).*randn(N,N_r);
+
+    X = Y + R;
+    Cxx = cov(X);
+    a = (inv(Cxx))*(y_var(i)*ones(N_r,1));
+
+    y_hat = y_mean*(1-a(1)-a(2)) + a(1)*X(:,1) + a(2)*X(:,2);
+
+    MMSE_emp(i) = mean((Y(:,1)-y_hat).^2);
+    MMSE_theo(i) = (y_var(i))*(r_var(i))/(2*y_var(i)+r_var(i));
+<span class="keyword">end</span>
+
+var_names = {<span class="string">'Var_y'</span>, <span class="string">'Var_r'</span>, <span class="string">'Experimental_MMSE'</span>, <span class="string">'Theoretical_MMSE'</span>};
+
+<span class="comment">% Results of using the linear estimator for multiple noisy observations</span>
+table(y_var, r_var, MMSE_emp,MMSE_theo, <span class="string">'VariableNames'</span>, var_names)
+</pre><pre class="codeoutput">
+ans =
+
+  4&times;4 table
+
+    Var_y    Var_r    Experimental_MMSE    Theoretical_MMSE
+    _____    _____    _________________    ________________
+
+      1        1            0.3343             0.33333     
+      1        2           0.49661                 0.5     
+      2        1           0.39844                 0.4     
+      2        2           0.66349             0.66667     
+
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%
+%Project 2
+%Do Hyung (Dave), Brian, Minh
+
+%% P1
+% example A
+
+% Number of trials
+N= 10000;
+
+% Making 
+Y = (2*rand(N,1)-1);
+W = (4*rand(N,1)-2);
+
+X = Y + W;
+
+x_ltneg1 = X<-1;
+x_btwn = X < 1 & X > -1;
+x_else = ~(x_ltneg1 | x_btwn);
+
+MSE = zeros(N,1);
+MSE(x_ltneg1) = (Y(x_ltneg1)-(X(x_ltneg1)+1)/2).^2;
+MSE(x_btwn) = Y(x_btwn).^2;
+MSE(x_else) = (Y(x_else)-(X(x_else)-1)/2).^2;
+
+var_names = {'Experimental_MMSE', 'Theoretical_MMSE'};
+MMSE_emp = mean(MSE);
+MMSE_theo = .25;
+
+% Bayes MMSE estimator in example 8.5 results
+table(MMSE_emp,MMSE_theo , 'VariableNames', var_names)
+%% LMSE
+x_mean = mean(X);
+y_mean = mean(Y);
+w_var = var(W);
+Cxy = cov(X,Y);
+x_var = Cxy(1,1);
+y_var = Cxy(2,2);
+c_xy = Cxy(1,2);
+
+y_hat = y_mean + (c_xy/(x_var^2))*(X-x_mean);
+MMSE_emp = mean((Y-y_hat).^2);
+MMSE_theo = 4/15;
+
+% Linear MMSE estimator in example 8.6 results
+table(MMSE_emp,MMSE_theo, 'VariableNames', var_names)
+
+%% P2
+clear all;
+y_var = [1;1;2;2];
+r_var = [1;2;1;2];
+N_r = 2;
+N = 5000;
+y_mean = 1;
+size_y = size(y_var);
+size_y = size_y(1);
+
+MMSE_emp = zeros(size_y,1);
+MMSE_theo = zeros(size_y,1);
+
+for i = 1:size_y
+    Y = repmat(sqrt(y_var(i)).*randn(N,1)+y_mean, 1, N_r);
+    R = sqrt(r_var(i)).*randn(N,N_r);
+
+    X = Y + R;
+    Cxx = cov(X);
+    a = (inv(Cxx))*(y_var(i)*ones(N_r,1));
+
+    y_hat = y_mean*(1-a(1)-a(2)) + a(1)*X(:,1) + a(2)*X(:,2);
+
+    MMSE_emp(i) = mean((Y(:,1)-y_hat).^2);
+    MMSE_theo(i) = (y_var(i))*(r_var(i))/(2*y_var(i)+r_var(i));
+end
+
+var_names = {'Var_y', 'Var_r', 'Experimental_MMSE', 'Theoretical_MMSE'};
+
+% Results of using the linear estimator for multiple noisy observations
+table(y_var, r_var, MMSE_emp,MMSE_theo, 'VariableNames', var_names)
+
+
+
+
+##### SOURCE END #####
+--></body></html>
