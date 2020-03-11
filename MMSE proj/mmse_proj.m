@@ -39,7 +39,7 @@ x_var = Cxy(1,1);
 y_var = Cxy(2,2);
 c_xy = Cxy(1,2);
 
-y_hat = y_mean + (c_xy/(x_var^2))*(X-x_mean);
+y_hat = y_mean + (c_xy/(x_var))*(X-x_mean);
 MMSE_emp = mean((Y-y_hat).^2);
 MMSE_theo = 4/15;
 
