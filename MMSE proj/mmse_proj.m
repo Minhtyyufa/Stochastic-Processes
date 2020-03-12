@@ -74,7 +74,7 @@ clear all;
 y_var = [1 2 1 2].';
 r_var = [1 1 2 2].';
 
-#Defines the number of observations
+%Defines the number of observations
 %By varying over the number of observations, 
 %we can see how the observations change the error of the estimator
 N = 10000;
@@ -122,7 +122,7 @@ for i = 1:size_y
         MSE_theo(num_obs) = (y_var(i))*(r_var(i))/(num_obs*y_var(i)+r_var(i)); %calculates the theoretical MSE from textbook
     end
     
-    #plotting of the different MSE vectors
+    %plotting of the different MSE vectors
     plot(1:N_r, MSE_emp);
     hold on;
     plot(1:N_r, MSE_theo);
