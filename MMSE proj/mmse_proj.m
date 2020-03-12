@@ -136,4 +136,14 @@ title('MMSE vs Observations with different variances');
 % Results of using the linear estimator for multiple noisy observations
 
 
-
+%REFLECTIONS
+%As shown in the figure, a larger variance of the noise signals, R, corresponds to a higher general MSE. 
+%This is most easily seen when comparing two plots with the same Y variance, but differing R variances.
+%In addition, the larger variance in R reqires a larger number of observations to reach a steady state. 
+%As shown, every plot reaches, or nearly reaches, a fairly constant MSE value. The relationship between the
+%time it takes to reach this value and the number of observations is clearly dependant on the variances of
+%the two variables. But it is also apparent that the variance of R has a greater impact than the variance of Y. 
+%This is likely due to the overall number of signals that impact the MSE. While we work with only a single 
+%Y variable, we deal with many noise signals, each of which impact the result. Intuitively, these would
+%have a larger overall impact, and therefore both the the settling time of the graph and the overall MSE would 
+%be more a function of the variance of R than the variance of Y. 
