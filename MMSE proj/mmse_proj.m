@@ -75,6 +75,8 @@ y_var = [1 2 1 2].';
 r_var = [1 1 2 2].';
 
 #Defines the number of observations
+%By varying over the number of observations, 
+%we can see how the observations change the error of the estimator
 N = 10000;
 
 
@@ -84,9 +86,14 @@ size_y = size(y_var);
 size_y = size_y(1);
 
 %the number of noise signals seen
+%similar to the number of observations, we will
+%see how the number of noise signals changes the 
+%overall accuracy of our estimate
 N_r = 20;
 
 %Defining the messages in the legend
+%By differentiating between emprical and theoretical
+%estimates, we can see the relative accuracy between the two.
 emp_message = "\\sigma^2_y=%d \\sigma^2_r=%d empirical";
 theo_message = "\\sigma^2_y=%d \\sigma^2_r=%d theoretical";
 
@@ -99,7 +106,7 @@ for i = 1:size_y
     legend_labels = [legend_labels sprintf(theo_message, y_var(i), r_var(i))];
     MSE_emp = zeros(N_r,1); %Initializes the matricies for the MSE of the theoretical and empirical distributions
     MSE_theo = zeros(N_r,1);
-    for num_obs = 1:N_r  %loops through the number of observed signals
+    for num_obs = 1:N_r  %loops through the number of observed signals. By changing the number of observed signals, we will see how the number actually changes the accuracy of our estimator
         Y = repmat(sqrt(y_var(i)).*randn(N,1)+y_mean, 1, num_obs);  %Creates the actual Y values from the mean and distributions defined above
         R = sqrt(r_var(i)).*randn(N,num_obs); %Creates the R values from the distributions above
 
@@ -107,11 +114,11 @@ for i = 1:size_y
         Cxx = cov(X);  %Covariance
         a = (inv(Cxx))*(y_var(i)*ones(num_obs,1)); %element for the LMMSE equation
                 
-        y_hat = y_mean; %With a lack of observation, the estimator is the mean
+        y_hat = y_mean; %With a lack of observation, the estimator is the mean.
         for j = 1:num_obs 
-            y_hat = y_hat - a(j)*(y_mean-X(:, j)); %Changes the estimator by making observations, and loops through total number
+            y_hat = y_hat - a(j)*(y_mean-X(:, j)); %Changes the estimator by making observations. We loop only through the number of signals we are currently observing in the outer for loop. 
         end
-        MSE_emp(num_obs) = mean((Y(:,1)-y_hat).^2, 'all');  %calculates the empirical MSE
+        MSE_emp(num_obs) = mean((Y(:,1)-y_hat).^2, 'all');  %calculates the empirical MSE. We take the square of the difference between the value and our estimate. 
         MSE_theo(num_obs) = (y_var(i))*(r_var(i))/(num_obs*y_var(i)+r_var(i)); %calculates the theoretical MSE from textbook
     end
     
