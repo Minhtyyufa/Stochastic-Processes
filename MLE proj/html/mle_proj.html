@@ -1,0 +1,310 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>mle_proj</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-03-28"><meta name="DC.source" content="mle_proj.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">P2</a></li><li><a href="#3">MSE vs Number of Observations Plot</a></li><li><a href="#4">Bias vs Number of Observations Plot</a></li><li><a href="#5">Variance vs Number of Observations Plot</a></li><li><a href="#6">P3</a></li></ul></div><pre class="codeinput"><span class="comment">%Project 3</span>
+<span class="comment">%Do Hyung (Dave), Brian, Minh</span>
+</pre><h2 id="2">P2</h2><p>To find the Maximum Likelihood Estimates for the Exponential and Rayleigh distributions, we first derived the estimates in part 1. Then to get the data for plotting the relationship between number of observations and MSE/bias/variance, we generated n_trials for each number of observations. This meant we calculated the maximum likelihood parameters for each number of observations and took the average amongst n_trials. In our code lambda is the parameter that maximizes likelihood. Finally, we calculated the bias, MSE, and variance for each number of observations and plotted them.</p><pre class="codeinput">clc; close <span class="string">all</span>; clear <span class="string">all</span>;
+
+<span class="comment">% Observation vector to vary the number of observations per trial</span>
+N_obs = round(linspace(1, 1e4, 100));
+
+<span class="comment">% Number of different number of observations</span>
+sz = [N_obs(end), 1];
+
+<span class="comment">% Mean for Exponential Distribution</span>
+mu = 10;
+
+<span class="comment">% Variance for Rayleigh Distribution</span>
+variance = 10;
+
+<span class="comment">% Number of trials</span>
+n_trial = 1000;
+
+<span class="comment">% Preallocating the matrices for recording MSES of the Exponential</span>
+<span class="comment">% and Rayleigh distributions.</span>
+mses_exp = zeros(size(N_obs,2), n_trial);
+mses_ray = zeros(size(N_obs,2), n_trial);
+
+<span class="comment">% Parameters to Maximize Likelihood for each distribution</span>
+lambda_exp = 1/mu;
+lambda_ray = sqrt(variance);
+
+<span class="comment">% Start Trials, outer loop is for changing number of observations</span>
+<span class="keyword">for</span> i = 1:size(N_obs,2)
+    <span class="comment">% Inner loop is for different trials per number of observations</span>
+    <span class="keyword">for</span> j = 1:n_trial
+        <span class="comment">% Generate distributions for Exponential and Rayleigh</span>
+        X_exp = exprnd(mu, N_obs(i), 1);
+        X_ray = raylrnd(sqrt(variance), N_obs(i), 1);
+
+        <span class="comment">% for an exponential distribution, a lambda for the mle estimator would</span>
+        <span class="comment">% simply be the reciprocal of sample mean</span>
+        mses_exp(i, j) = 1/mean(X_exp);
+
+        <span class="comment">% Derived formula for Rayleigh Distribution lambda</span>
+        mses_ray(i, j) = sqrt(sum(X_ray.*X_ray)/(2*N_obs(i)));
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Calculating the biases for each distribution</span>
+bias_exp = mean(mses_exp, 2) - lambda_exp;
+bias_ray = mean(mses_ray, 2) - lambda_ray;
+
+<span class="comment">% Calculating the variances for each distribution</span>
+var_exp = var(mses_exp, 0, 2);
+var_ray = var(mses_ray, 0, 2);
+
+<span class="comment">% Calculates the MSE for each distribution</span>
+<span class="comment">% Uses L2 norm to find mean squared error per number of observations</span>
+mses_exp = vecnorm(mses_exp-lambda_exp, 2, 2);
+mses_ray = vecnorm(mses_ray-lambda_ray, 2, 2);
+</pre><h2 id="3">MSE vs Number of Observations Plot</h2><p>Plotting MSE vs Number of Observations on a semilog y scale, so that you can clearly see the relationship (otherwise it would look like it just collapsed to 0)</p><pre class="codeinput">figure;
+semilogy(N_obs, mses_exp);
+hold <span class="string">on</span>;
+semilogy(N_obs, mses_ray);
+
+title(<span class="string">'MSE vs Number of Observations for Exponential and Rayleigh Estimator'</span>);
+legend(<span class="string">'Exponential MLE'</span>, <span class="string">'Rayleigh MLE'</span>);
+xlabel(<span class="string">'Number of Observations'</span>);
+ylabel(<span class="string">'MSE'</span>);
+</pre><img vspace="5" hspace="5" src="mle_proj_01.png" alt=""> <h2 id="4">Bias vs Number of Observations Plot</h2><p>No semilog y was needed here</p><pre class="codeinput">figure;
+plot(N_obs, bias_exp);
+hold <span class="string">on</span>;
+plot(N_obs, bias_ray);
+
+title(<span class="string">'Bias vs Number of Observations for Exponential and Rayleigh Estimator'</span>);
+legend(<span class="string">'Exponential MLE Bias'</span>, <span class="string">'Rayleigh MLE Bias'</span>);
+xlabel(<span class="string">'Number of Observations'</span>);
+ylabel(<span class="string">'Bias'</span>);
+</pre><img vspace="5" hspace="5" src="mle_proj_02.png" alt=""> <h2 id="5">Variance vs Number of Observations Plot</h2><pre class="codeinput">figure;
+semilogy(N_obs, var_exp);
+hold <span class="string">on</span>;
+semilogy(N_obs, var_ray);
+
+title(<span class="string">'Variance vs Number of Observations for Exponential and Rayleigh Estimator'</span>);
+legend(<span class="string">'Exponential MLE Variance'</span>, <span class="string">'Rayleigh MLE Variance'</span>);
+xlabel(<span class="string">'Number of Observations'</span>);
+ylabel(<span class="string">'Variance'</span>);
+</pre><img vspace="5" hspace="5" src="mle_proj_03.png" alt=""> <h2 id="6">P3</h2><p>Our rationale for figuring out the distribution that best matches the data from the data.mat file is the one whose maximum likelihood is the highest. So we found the log-likelihood estimates for each distribution and compared them. We found that the data matched a Rayleigh distribution better than an Exponential Distribution.</p><pre class="codeinput">clc; close <span class="string">all</span>; clear <span class="string">all</span>;
+
+<span class="comment">% Load data from .mat file</span>
+X = load(<span class="string">'data.mat'</span>).data;
+X_size = size(X,2);
+
+<span class="comment">% Calculating the ML parameters for each distribution using derived</span>
+<span class="comment">% formulas</span>
+lambda_exp = 1/mean(X);
+lambda_ray = sqrt(sum(X.*X)/(2*X_size));
+
+<span class="comment">% Calculating the log-likelihood estimates for each distribution</span>
+l_exp = sum(log(lambda_exp*exp(-lambda_exp*X)))
+l_ray = sum(log(X/(lambda_ray*lambda_ray).*exp(-(X.*X)/(2*lambda_ray*lambda_ray))))
+
+<span class="comment">% Since likelihood estimate of Rayleigh MLE is higher than that of</span>
+<span class="comment">% Exponential MLE, the data is more likely to be drawn from a Rayleigh</span>
+<span class="comment">% Distribution.</span>
+</pre><pre class="codeoutput error">Error: Functions cannot be indexed using {} or . indexing.
+
+Error in mle_proj (line 118)
+X = load('data.mat').data;
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%
+%Project 3
+%Do Hyung (Dave), Brian, Minh
+
+%% P2
+% To find the Maximum Likelihood Estimates for the Exponential and Rayleigh
+% distributions, we first derived the estimates in part 1. Then to get the
+% data for plotting the relationship between number of observations and
+% MSE/bias/variance, we generated n_trials for each number of observations.
+% This meant we calculated the maximum likelihood parameters for each
+% number of observations and took the average amongst n_trials. In our code
+% lambda is the parameter that maximizes likelihood. Finally, we calculated 
+% the bias, MSE, and variance for each number of observations and plotted
+% them.
+clc; close all; clear all;
+
+% Observation vector to vary the number of observations per trial
+N_obs = round(linspace(1, 1e4, 100));
+
+% Number of different number of observations
+sz = [N_obs(end), 1];
+
+% Mean for Exponential Distribution
+mu = 10;
+
+% Variance for Rayleigh Distribution
+variance = 10;
+
+% Number of trials
+n_trial = 1000;
+
+% Preallocating the matrices for recording MSES of the Exponential
+% and Rayleigh distributions.
+mses_exp = zeros(size(N_obs,2), n_trial);
+mses_ray = zeros(size(N_obs,2), n_trial);
+
+% Parameters to Maximize Likelihood for each distribution
+lambda_exp = 1/mu;
+lambda_ray = sqrt(variance);
+
+% Start Trials, outer loop is for changing number of observations
+for i = 1:size(N_obs,2)
+    % Inner loop is for different trials per number of observations
+    for j = 1:n_trial
+        % Generate distributions for Exponential and Rayleigh
+        X_exp = exprnd(mu, N_obs(i), 1);
+        X_ray = raylrnd(sqrt(variance), N_obs(i), 1);
+        
+        % for an exponential distribution, a lambda for the mle estimator would
+        % simply be the reciprocal of sample mean
+        mses_exp(i, j) = 1/mean(X_exp);
+        
+        % Derived formula for Rayleigh Distribution lambda 
+        mses_ray(i, j) = sqrt(sum(X_ray.*X_ray)/(2*N_obs(i)));
+    end
+end
+
+% Calculating the biases for each distribution
+bias_exp = mean(mses_exp, 2) - lambda_exp;
+bias_ray = mean(mses_ray, 2) - lambda_ray;
+
+% Calculating the variances for each distribution
+var_exp = var(mses_exp, 0, 2);
+var_ray = var(mses_ray, 0, 2);
+
+% Calculates the MSE for each distribution
+% Uses L2 norm to find mean squared error per number of observations
+mses_exp = vecnorm(mses_exp-lambda_exp, 2, 2);
+mses_ray = vecnorm(mses_ray-lambda_ray, 2, 2);
+
+%% MSE vs Number of Observations Plot
+% Plotting MSE vs Number of Observations on a semilog y scale, so that
+% you can clearly see the relationship (otherwise it would look like 
+% it just collapsed to 0)
+figure;
+semilogy(N_obs, mses_exp);
+hold on;
+semilogy(N_obs, mses_ray);
+
+title('MSE vs Number of Observations for Exponential and Rayleigh Estimator');
+legend('Exponential MLE', 'Rayleigh MLE');
+xlabel('Number of Observations');
+ylabel('MSE');
+
+
+%% Bias vs Number of Observations Plot
+% No semilog y was needed here
+figure;
+plot(N_obs, bias_exp);
+hold on;
+plot(N_obs, bias_ray);
+
+title('Bias vs Number of Observations for Exponential and Rayleigh Estimator');
+legend('Exponential MLE Bias', 'Rayleigh MLE Bias');
+xlabel('Number of Observations');
+ylabel('Bias');
+
+%% Variance vs Number of Observations Plot
+figure;
+semilogy(N_obs, var_exp);
+hold on;
+semilogy(N_obs, var_ray);
+
+title('Variance vs Number of Observations for Exponential and Rayleigh Estimator');
+legend('Exponential MLE Variance', 'Rayleigh MLE Variance');
+xlabel('Number of Observations');
+ylabel('Variance');
+
+%% P3
+% Our rationale for figuring out the distribution that best matches the data
+% from the data.mat file is the one whose maximum likelihood is the
+% highest. So we found the log-likelihood estimates for each distribution
+% and compared them. We found that the data matched a Rayleigh distribution
+% better than an Exponential Distribution.
+clc; close all; clear all;
+
+% Load data from .mat file
+X = load('data.mat').data;
+X_size = size(X,2);
+
+% Calculating the ML parameters for each distribution using derived
+% formulas
+lambda_exp = 1/mean(X);
+lambda_ray = sqrt(sum(X.*X)/(2*X_size));
+
+% Calculating the log-likelihood estimates for each distribution
+l_exp = sum(log(lambda_exp*exp(-lambda_exp*X)))
+l_ray = sum(log(X/(lambda_ray*lambda_ray).*exp(-(X.*X)/(2*lambda_ray*lambda_ray))))
+
+% Since likelihood estimate of Rayleigh MLE is higher than that of
+% Exponential MLE, the data is more likely to be drawn from a Rayleigh
+% Distribution. 
+##### SOURCE END #####
+--></body></html>
