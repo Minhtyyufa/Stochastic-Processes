@@ -1,4 +1,7 @@
+% variance
 sig2 = 1^2;
+
+% N=4
 Rrr4 = [1.2+sig2 0.28 0.4 0;
        0.28 1.2+sig2 0.28 0.4;
        0.4 0.28 1.2+sig2 0.28;
@@ -6,6 +9,7 @@ Rrr4 = [1.2+sig2 0.28 0.4 0;
 Rsr4 = [1; 0.2; 0.4; 0];
 h4 = Rrr4\Rsr4;
 
+% N=6
 Rrr6 = [1.2+sig2 0.28 0.4 0 0 0;
       0.28 1.2+sig2 0.28 0.4 0 0 ;
       0.4 0.28 1.2+sig2 0.28 0.4 0;
@@ -16,7 +20,7 @@ Rrr6 = [1.2+sig2 0.28 0.4 0 0 0;
 Rsr6 = [1; 0.2; 0.4; 0; 0; 0];
 h6 = Rrr6\Rsr6;
 
-
+% N=10
 Rrr10 = [1.2+sig2 0.28 0.4 0 0 0 0 0 0 0;
       0.28 1.2+sig2 0.28 0.4 0 0 0 0 0 0;
       0.4 0.28 1.2+sig2 0.28 0.4 0 0 0 0 0;
@@ -31,16 +35,21 @@ Rrr10 = [1.2+sig2 0.28 0.4 0 0 0 0 0 0 0;
 Rsr10 = [1; 0.2; 0.4; 0; 0; 0; 0; 0; 0; 0];
 h10 = Rrr10\Rsr10;
 
+% generate input and noise
 s = randi(2, 1000, 1)*2 -3;
 d = normrnd(0, sig2, 1000, 1);
 c = [1; 0.2; 0.4];
 
+% first filter
 z = filter(c, 1, s);
+% add noise
 r = z + d;
+% second filter to get s_hat
 s_hat4 = filter(h4, 1, r);
 s_hat6 = filter(h6, 1, r);
 s_hat10 = filter(h10, 1, r);
 
+% get MSE
 MSE = [mean((s - s_hat4).^2); mean((s - s_hat6).^2); mean((s - s_hat10).^2)];
 N = [4; 6; 10];
 table(N, MSE)
